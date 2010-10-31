@@ -1,0 +1,25 @@
+HTML transforms go in here.
+
+Here's an example of the formatting:
+
+<div class="item">
+  <a href="1.jpg"><img class="headerImage" src="1.jpg" /></a>
+  <a href="2.jpg"><img class="defaultImage" src="2.jpg" /></a>
+  <a href="3.jpg"><img class="defaultImage" src="3.jpg" /></a>
+</div>
+<div class="item">
+  <a href="4.jpg"><img class="headerImage" src="4.jpg" /></a>
+  <a href="5.jpg"><img class="defaultImage" src="5.jpg" /></a>
+  <a href="6.jpg"><img class="defaultImage" src="6.jpg" /></a>
+</div>
+<div class="item">
+  <a href="7.jpg"><img class="headerImage" src="7.jpg" /></a>
+  <a href="8.jpg"><img class="defaultImage" src="8.jpg" /></a>
+  <a href="9.jpg"><img class="defaultImage" src="9.jpg" /></a>
+</div>
+<div class="item">
+  <a href="10.jpg"><img class="headerImage" src="10.jpg" /></a>
+  <a href="11.jpg"><img class="defaultImage" src="11.jpg" /></a>
+  <a href="12.jpg"><img class="defaultImage" src="12.jpg" /></a>
+</div>
+
