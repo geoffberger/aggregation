@@ -18,8 +18,27 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/aggregation.js"></script>
     <script>
-      setupImageDialog();
-      setupTransformSwitcher();
+      new ImageDialog(document.body, 'item', ['headerImage', 'defaultImage'], function(element) {
+        var buffer = [];
+        var image = element.firstChild;
+        buffer.push('<img class="', image.className , '" src="', image.src, '" />');
+        return buffer.join('');
+      });
+
+      new TransformSwitcher('#primary-nav', '#content',
+        function() {
+          var defaultTransform = this.selector.find('li:first-child a');
+          return defaultTransform.attr('href');
+        },
+        function() {
+          var defaultTransform = this.selector.find('li:first-child a');
+          return defaultTransform.html();
+        },
+        function(title) {
+          var buffer = ['<h2>', title, '<h2>'];
+          return buffer.join('');
+        }
+      );
     </script>
   </body>
 </html>

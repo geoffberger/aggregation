@@ -1,84 +1,126 @@
 /**
  * Dialog Display
  */
-function setupImageDialog() {
-  $(document.body).click(function(e) {
-    var target = e.target;
-    var dialogOverlay = $('#dialogOverlay'),
-        container     = target.parentNode.parentNode;
+var ImageDialog = function(selector, imageContainer, imageClassNames, dialogOutputCallback) {
+  var self = this;
+  self.selector = $(selector);
+  self.imageContainer = imageContainer;
+  self.imageClassNames = imageClassNames;
+  self.dialogOutputCallback = dialogOutputCallback;
+  self.dialogOverlay = {};
+  self.dialogWrapper = {};
+  self.dialogContent = {};
+  self.init();
+};
 
-    if (dialogOverlay.length == 0 && target.nodeName == 'IMG' && container.className == 'item') {
-      $(document.body).append('<div id="dialogOverlay" class="enable dialogVisible"></div><div id="dialogWrapper" class="enable"><div id="dialogContent"></div></div>');
-    }
+ImageDialog.prototype = {
+  init:function() {
+    var self = this;
+    this.selector.click(function(e) {
+      var target = e.target,
+          container = target.parentNode.parentNode;
+      self.dialogOverlay = $('#dialogOverlay');
 
-    var dialogWrapper = $('#dialogWrapper'), 
-        dialogContent = $('#dialogContent');
-
-    if (target.nodeName == 'IMG' && container.className == 'item') {
-      e.preventDefault();
-      dialogOverlay.attr('class', 'enable dialogVisible');
-      dialogWrapper.attr('class', 'enable');
-      dialogContent.fadeIn();
-
-      var links = $(container).find('a'),
-          output = ['<a id="dialogClose" href="#close">X</a>'];
-
-      for (var i = 0, linkLength = links.length; i < linkLength; i++) {
-        output.push('<img class="', links[i].firstChild.className , '" src="', links[i].firstChild.src, '" />');
+      if (self.dialogOverlay.length == 0 && target.nodeName == 'IMG' && container.className == self.imageContainer) {
+        self.selector.append('<div id="dialogOverlay" class="enable dialogVisible"></div><div id="dialogWrapper" class="enable"><div id="dialogContent"></div></div>');
       }
 
-      if (output) {
-        dialogContent.html(output.join(''));
+      self.dialogWrapper = $('#dialogWrapper');
+      self.dialogContent = $('#dialogContent');
+
+      if (target.nodeName == 'IMG' && container.className == self.imageContainer) {
+        e.preventDefault();
+        self.displayDialog();
+
+        var links = $(container).find('a'),
+            output = ['<a id="dialogClose" href="#close">X</a>'];
+
+        for (var i = 0, linkLength = links.length; i < linkLength; i++) {
+          output.push(self.dialogOutputCallback.call(self, links[i]));
+        }
+
+        if (output) {
+          self.dialogContent.html(output.join(''));
+        }
+      }
+      else if (target.nodeName == 'A' && container.className == '' && self.hasImagesByClassName(target)) {
+        e.preventDefault();
+      }
+
+      if (target.id == 'dialogClose' || target.id == 'dialogOverlay' || target.id == 'dialogWrapper') {
+        e.preventDefault();
+        self.hideDialog();
+      }
+    });
+  },
+
+  displayDialog: function() {
+    this.dialogOverlay.attr('class', 'enable dialogVisible');
+    this.dialogWrapper.attr('class', 'enable');
+    this.dialogContent.fadeIn();
+  },
+
+  hideDialog: function() {
+    this.dialogOverlay.attr('class', 'disable');
+    this.dialogWrapper.attr('class', 'disable');
+    this.dialogContent.css('display', 'none');
+  },
+
+  hasImagesByClassName: function(target) {
+    var hasClass = false;
+
+    for (var i = 0, imageClassNamesLength = this.imageClassNames.length; i < imageClassNamesLength; i++) {
+      if (target.firstChild.className == this.imageClassNames[i]) {
+        hasClass = true;
+        break;
       }
     }
-    else if (target.nodeName == 'A' && container.className == '' &&
-              (target.firstChild.className == 'headerImage' || target.firstChild.className == 'defaultImage')) {
-      e.preventDefault();
-    }
 
-    if (target.id == 'dialogClose' || target.id == 'dialogOverlay' || target.id == 'dialogWrapper') {
-      e.preventDefault();
-      dialogOverlay.attr('class', 'disable');
-      dialogWrapper.attr('class', 'disable');
-      dialogContent.css('display', 'none');
-    }
-  });
-}
+    return hasClass;
+  }
+};
 
 /**
  * Transform Switcher
  */
-function setupTransformSwitcher() {
-  var primaryNav             = $('#primary-nav'),
-      defaultTransform       = primaryNav.find('li:first-child a'),
-      defaultTransformHeader = defaultTransform.html(),
-      content                = $('#content');
-
-  $.ajax({
-    url:defaultTransform.attr('href'),
-    dataType:'html',
-    success:function(response) {
-      var buffer = ['<h2>' + defaultTransformHeader + '</h2>', response];
-      content.html(buffer.join());
-    }
-  });
-
-  primaryNav.click(function(e) {
-    var target = e.target;
-
-    if (target.nodeName == 'A') {
-      e.preventDefault();
-
-      $.ajax({
-        url:target.href,
-        dataType:'html',
-        success:function(response) {
-          var buffer = ['<h2>' + target.innerHTML + '</h2>', response];
-          content.html(buffer.join());
-        }
-      });
-    }
-
-  });
+var TransformSwitcher = function(selector, content, defaultUrlCallback, defaultTitleCallback, titleCallback) {
+  var self = this;
+  self.selector = $(selector);
+  self.content = $(content);
+  self.defaultUrlCallback = defaultUrlCallback;
+  self.defaultTitleCallback = defaultTitleCallback;
+  self.titleCallback = titleCallback;
+  self.init();
+  self.events();
 }
+
+TransformSwitcher.prototype = {
+  init: function() {
+    this.doAjaxRequest(this.defaultUrlCallback(this), this.defaultTitleCallback.call(this));
+  },
+
+  events:function() {
+    var self = this;
+    this.selector.click(function(e) {
+      var target = e.target;
+
+      if (target.nodeName == 'A') {
+        e.preventDefault();
+        self.doAjaxRequest(target.href, target.innerHTML);
+      }
+    });
+  },
+
+  doAjaxRequest: function(url, title) {
+    var self = this;
+    $.ajax({
+      url:url,
+      dataType:'html',
+      success:function(response) {
+        var buffer = [self.titleCallback.call(self, title), response];
+        self.content.html(buffer.join(''));
+      }
+    });
+  }
+};
 
