@@ -10,21 +10,26 @@ var ImageDialog = function(selector, imageContainer, imageClassNames, dialogOutp
   self.dialogOverlay = {};
   self.dialogWrapper = {};
   self.dialogContent = {};
-  self.init();
+  self.events();
 };
 
 ImageDialog.prototype = {
-  init:function() {
+  events: function() {
+    this.triggerDialogSelector();
+    this.triggerEscapeCloseOut();
+  },
+
+  triggerDialogSelector: function() {
     var self = this;
     this.selector.click(function(e) {
       var target = e.target,
           container = target.parentNode.parentNode;
-      self.dialogOverlay = $('#dialogOverlay');
 
-      if (self.dialogOverlay.length == 0 && target.nodeName == 'IMG' && container.className == self.imageContainer) {
+      if ($('#dialogOverlay').length == 0 && target.nodeName == 'IMG' && container.className == self.imageContainer) {
         self.selector.append('<div id="dialogOverlay" class="enable dialogVisible"></div><div id="dialogWrapper" class="enable"><div id="dialogContent"></div></div>');
       }
 
+      self.dialogOverlay = $('#dialogOverlay');
       self.dialogWrapper = $('#dialogWrapper');
       self.dialogContent = $('#dialogContent');
 
@@ -49,6 +54,16 @@ ImageDialog.prototype = {
 
       if (target.id == 'dialogClose' || target.id == 'dialogOverlay' || target.id == 'dialogWrapper') {
         e.preventDefault();
+        self.hideDialog();
+      }
+    });
+  },
+
+  triggerEscapeCloseOut: function() {
+    var self = this;
+
+    $(document).keyup(function(e) { 
+      if (e.which == 27 && self.dialogOverlay && self.dialogOverlay.hasClass('enable')) {
         self.hideDialog();
       }
     });
