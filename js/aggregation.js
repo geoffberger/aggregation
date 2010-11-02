@@ -34,6 +34,9 @@ ImageDialog.prototype = {
       self.dialogContent = $('#dialogContent');
 
       if (target.nodeName == 'IMG' && container.className == self.imageContainer) {
+        var topPosition = $(window).scrollTop() + 80;
+        self.dialogWrapper.css('top', topPosition + 'px');
+
         e.preventDefault();
         self.displayDialog();
 
