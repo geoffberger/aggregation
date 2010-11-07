@@ -98,47 +98,46 @@ ImageDialog.prototype = {
   }
 };
 
-/**
- * Transform Switcher
- */
-var TransformSwitcher = function(selector, content, defaultUrlCallback, defaultTitleCallback, titleCallback) {
+var ContentLoader = function(selector, content, defaultDisplay, titleCallback, contentCallback) {
   var self = this;
   self.selector = $(selector);
   self.content = $(content);
-  self.defaultUrlCallback = defaultUrlCallback;
-  self.defaultTitleCallback = defaultTitleCallback;
+  self.defaultDisplay = defaultDisplay;
   self.titleCallback = titleCallback;
+  self.contentCallback = contentCallback;
+
   self.init();
   self.events();
-}
+};
 
-TransformSwitcher.prototype = {
+ContentLoader.prototype = {
   init: function() {
-    this.doAjaxRequest(this.defaultUrlCallback(this), this.defaultTitleCallback.call(this));
+    this.defaultDisplay.call(this);
   },
 
-  events:function() {
+  events: function() {
+    this.triggerMenuSelection();
+  },
+
+  triggerMenuSelection: function() {
     var self = this;
-    this.selector.click(function(e) {
+
+    self.selector.click(function(e) {
+      e.preventDefault();
       var target = e.target;
-
       if (target.nodeName == 'A') {
-        e.preventDefault();
-        self.doAjaxRequest(target.href, target.innerHTML);
+        self.displayContent(target.innerHTML, target.hash);
       }
     });
   },
 
-  doAjaxRequest: function(url, title) {
-    var self = this;
-    $.ajax({
-      url:url,
-      dataType:'html',
-      success:function(response) {
-        var buffer = [self.titleCallback.call(self, title), response];
-        self.content.html(buffer.join(''));
-      }
-    });
+  displayContent: function(title, hrefHash) {
+    var buffer = [];
+    if (hrefHash.match(/#/i)) {
+      var section = hrefHash.replace(/#/i, '');
+      buffer.push(this.titleCallback.call(this, title), this.contentCallback.call(this, data[section]));
+      this.content.html(buffer.join(''));
+    }
   }
 };
 

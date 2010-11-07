@@ -1,3 +1,4 @@
 *.swp
 transforms/*.html
 imgs/*
+js/data.js

@@ -9,13 +9,14 @@
 
     <h1>Error Plots for Aggregation Experiments</h1>
     <ul id="primary-nav" class="nav">
-      <li><a href="transforms/gargoyle.html">Gargoyle</a></li>
-      <li><a href="transforms/dc.html">Dancing Children</a></li>
-      <li><a href="transforms/quas.html">Quasimoto</a></li>
+      <li><a href="#gargoyle">Gargoyle</a></li>
+      <li><a href="#dc">Dancing Children</a></li>
+      <li><a href="#quas">Quasimoto</a></li>
     </ul>
     <div id="content"></div>
 
     <script src="js/jquery.min.js"></script>
+    <script src="js/data.js"></script>
     <script src="js/aggregation.js"></script>
     <script>
       new ImageDialog(document.body, 'item', ['headerImage', 'defaultImage'], function(element) {
@@ -25,17 +26,30 @@
         return buffer.join('');
       });
 
-      new TransformSwitcher('#primary-nav', '#content',
+      new ContentLoader('#primary-nav', '#content',
         function() {
-          var defaultTransform = this.selector.find('li:first-child a');
-          return defaultTransform.attr('href');
-        },
-        function() {
-          var defaultTransform = this.selector.find('li:first-child a');
-          return defaultTransform.html();
+          var defaultSelection = this.selector.find('li:first-child a');
+          this.displayContent(defaultSelection.html(), defaultSelection.attr('href'));
         },
         function(title) {
           var buffer = ['<h2>', title, '<h2>'];
+          return buffer.join('');
+        },
+        function(images) {
+          var buffer = [];
+
+          for (var i = 0, imageLen = images.length; i < imageLen; i++) {
+            var imageGroup = images[i];
+            buffer.push('<div class="item">');
+
+            for (var j = 0, imageGroupLen = imageGroup.length; j < imageGroupLen; j++) {
+              var cssClass = (j == 0) ? 'headerImage' : 'defaultImage';
+              buffer.push('<a href="', imageGroup[j] ,'"><img  class="', cssClass , '" src="', imageGroup[j] ,'" /></a>');
+            }
+
+            buffer.push('</div>');
+          }
+
           return buffer.join('');
         }
       );
